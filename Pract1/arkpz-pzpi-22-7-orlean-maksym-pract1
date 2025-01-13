@@ -1,1 +1,114 @@
+Назви змінних мають відображати їх призначення. 
 
+Фрагмент коду: 
+pascal
+// Поганий приклад 
+var a, b: Integer; 
+
+// Гарний приклад 
+var TotalSum, ItemCount: Integer; 
+
+
+Коментарі допомагають зрозуміти логіку складних частин коду. 
+
+Фрагмент коду:
+pascal 
+// Обчислення суми чисел 
+Sum := Num1 + Num2;
+
+
+Використовуйте константи замість чисел для покращення читабельності.
+
+Фрагмент коду: 
+pascal 
+// Поганий приклад 
+if (speed > 120) then WriteLn('Overspeeding'); 
+
+// Гарний приклад 
+const MAX_SPEED = 120; if (speed > MAX_SPEED) then WriteLn('Overspeeding');
+
+
+Фрагмент коду до форматування:
+pascal 
+begin 
+if x>10 then 
+writeln('x is greater than 10'); 
+else writeln('x is less than or equal to 10');  
+end; 
+
+Фрагмент коду після форматування:
+pascal 
+ begin 
+   if x > 10 then 
+      writeln('x is greater than 10') 
+   else writeln('x is less than or equal to 10'); 
+end; 
+
+
+// До рефакторингу 
+procedure ProcessData; 
+begin 
+  WriteLn('Processing step 1');
+  WriteLn('Processing step 2'); 
+  WriteLn('Processing step 3'); 
+end;
+
+// Після рефакторингу 
+procedure Step1; 
+begin 
+  WriteLn('Processing step 1'); 
+end; 
+procedure Step2; 
+begin 
+  WriteLn('Processing step 2'); 
+end; 
+procedure Step3; 
+begin 
+  WriteLn('Processing step 3'); 
+end; 
+procedure ProcessData; 
+begin 
+  Step1; 
+  Step2;
+  Step3; 
+end;
+
+
+- Завжди перевіряйте вхідні дані. 
+- Використовуйте конструкцію try...except для обробки виключень. 
+
+Фрагмент коду:
+pascal 
+try 
+ ReadLn(Input); 
+ Result := StrToInt(Input); 
+except 
+ on E: EConvertError do 
+  WriteLn('Error: Invalid input'); 
+end; 
+
+
+- Написання тестів для перевірки функціональності коду.
+- Додавання коментарів до функцій і процедур.
+- Використання модульного тестування для забезпечення стабільності програми.
+
+Фрагмент коду для тестування:
+pascal 
+procedure TestAddition; 
+begin 
+  if Add(2, 3) = 5 then 
+   WriteLn('Test passed') 
+  else 
+   WriteLn('Test failed'); 
+end; 
+
+
+- Поганий код: 
+pascal if (a=10) then writeln('Value is 10'); if (b=20)then writeln('Value is 20');
+
+- Хороший код: 
+pascal 
+   if (a = 10) then 
+ WriteLn('Value is 10'); 
+   if (b = 20) then 
+ WriteLn('Value is 20'); 
