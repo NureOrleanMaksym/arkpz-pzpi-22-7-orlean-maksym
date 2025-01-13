@@ -1,0 +1,417 @@
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+
+
+Кафедра «Програмної інженерії»
+
+
+
+
+
+
+ЗВІТ
+
+З Лабораторної роботи № 2 з дисципліни
+«Аналіз та рефакторинг коду»
+
+
+
+
+
+
+
+
+
+Виконав
+ст. гр. ПЗПІ-22-7
+Орлеан Максим	Перевірив
+ст. викладач каф. ПІ Сокорчук І. П.
+
+
+
+
+
+
+
+
+Харків 2024
+ 
+1	Вступ
+
+1.1	Тема
+
+
+Розробка бази даних для серверної частини програмної системи та прикладного програмного інтерфейсу (АРІ).
+
+1.2	Мета
+
+Розробити базу даних для серверної частини програмної системи та прикладного програмного інтерфейсу.
+
+2	Розробка діаграм
+
+2.1	Розробка UML діаграми прецедентів для серверної частини системи
+
+Для акторів UML діаграми було обрано дві ключові ролі: адміністратора системи (Admin) та користувача (User). Адміністратор відповідає за управління транспортними засобами, обліковими записами користувачів, а також за моніторинг даних із сенсорів та оптимізацію роботи системи. Користувач має доступ до перегляду призначених йому транспортних засобів, їхнього технічного стану, маршрутів і даних у реальному часі.
+Для розробки діаграми прецедентів було обрано такі сценарії використання:
+•	Авторизація: забезпечує ідентифікацію та аутентифікацію користувачів.
+•	Перегляд інформації про транспортні засоби: дозволяє отримувати дані про транспортні засоби та їхній стан.
+•	Перегляд маршрутів та стану транспортного засобу: забезпечує доступ до маршрутів, пов’язаних із конкретним транспортним засобом.
+•	Управління користувачами (CRUD операції): дозволяє адміністратору створювати, редагувати, видаляти користувачів, а також переглядати їхні облікові записи.
+•	Управління транспортними засобами (CRUD операції): дозволяє адміністратору додавати, змінювати та видаляти транспортні засоби.
+•	Перегляд даних із сенсорів у реальному часі: надає можливість моніторити дані з IoT-пристроїв, таких як GPS-трекери та датчики.
+На основі цих сценаріїв створено UML діаграму прецедентів (див. рис. 2.1), яка відображає ключові взаємодії акторів із серверною частиною системи RoadSense. Ця діаграма забезпечує візуальне уявлення про функціональність системи, розподілену між адміністраторами та користувачами.
+
+
+ 
+Рис. 2.1 – UML діаграма прецедентів
+2.2	Розробка ER діаграми даних
+
+Для розробки бази даних системи RoadSense була створена ER діаграма, яка відображає основні сутності та їх взаємозв’язки. Основні сутності системи включають:
+• Vehicles (Транспортні засоби) — містить інформацію про транспортні засоби, включаючи модель, номерний знак, рік випуску та статус транспортного засобу.
+• Users (Користувачі) — таблиця для зберігання даних про користувачів, їхні облікові записи та ролі (наприклад, водій чи адміністратор).
+• Routes (Маршрути) — містить дані про маршрути, що використовуються транспортними засобами, включаючи стартову та кінцеву точки, а також відстань.
+• Sensors (Сенсори) — зберігає дані від IoT-сенсорів, таких як температура, тиск у шинах або стан двигуна, з прив’язкою до конкретного транспортного засобу.
+• UserVehicles (Призначення транспортних засобів) — відображає, які транспортні засоби призначені певним користувачам, що дозволяє визначати, який користувач управляє яким транспортним засобом на момент призначення.
+Зв’язки між таблицями: • Sensors прив’язується до Vehicles через поле vehicle_id, що вказує на конкретний транспортний засіб, з яким працює сенсор. • UserVehicles є проміжною таблицею, яка зв'язує користувачів і транспортні засоби, через поля user_id та vehicle_id. • Routes пов’язаний з Sensors через поле sensors_id, яке вказує на сенсор, що моніторить маршрут.
+Діаграма ER відображає всі необхідні зв’язки та структури для ефективного управління автопарком у системі RoadSense (див. рис. 2.2).
+
+ 
+Рис. 2.2 – ER діаграма даних
+
+3.	Розробка бази даних
+
+3.1	Розроблення бази даних програмної системи 
+
+Код наведено у додатку А
+Розробка бази даних для програмної системи управління автопарками RoadSense враховує вимоги щодо зберігання та обробки даних про транспортні засоби, користувачів, маршрути, сенсори та інші аспекти системи. Для цієї мети було обрано реляційну базу даних, яка забезпечує ефективну організацію та зв’язок між сутностями, необхідними для роботи програмної системи.
+Структура бази даних складається з наступних основних таблиць: 
+• 3.1.1 Таблиця Users: Містить інформацію про користувачів системи. Кожен запис включає дані про користувача, такі як ім’я, електронну пошту, телефон та роль у системі (наприклад, водій або адміністратор). 
+• 3.1.2 Таблиця Vehicles: Зберігає дані про транспортні засоби, такі як модель, номерний знак, рік випуску, статус (активний/неактивний) та технічні параметри (наприклад, стан двигуна або тиск у шинах). 
+• 3.1.3 Таблиця Routes: Містить дані про маршрути, які виконують транспортні засоби, з інформацією про початкову та кінцеву точку маршруту, відстань та прив’язку до відповідних сенсорів.
+ • 3.1.4 Таблиця Sensors: Зберігає дані, отримані від сенсорів, що вимірюють різні параметри, такі як температура, тиск в шинах та інші технічні показники транспортних засобів.
+ • 3.1.5 Таблиця UserVehicles: Використовується для зберігання інформації про те, які транспортні засоби призначені певним користувачам.
+Зв’язки між таблицями
+Для забезпечення інтеграції даних та підтримки зв’язків між сутностями в базі даних використовуються зовнішні ключі:
+• Таблиця Users пов’язана з таблицею UserVehicles через user_id, що вказує на відповідного користувача, який має доступ до транспортного засобу.
+• Таблиця Vehicles пов’язана з таблицями Routes, Sensors та UserVehicles через vehicle_id, що забезпечує зв’язок між транспортними засобами та їх характеристиками, маршрутом чи користувачами.
+• Таблиця Routes зберігає інформацію про транспортні засоби, що виконують маршрути, через vehicle_id, а також забезпечує інтеграцію з сенсорами через sensors_id.
+Використання ORM для взаємодії з базою даних
+Для зручності роботи з базою даних використовуються ORM (Object-Relational Mapping) інструменти, зокрема, Mongoose для роботи з MongoDB. Mongoose спрощує процес створення моделей, валідації даних та виконання операцій з документами та колекціями. Він також підтримує зв’язки між документами через властивість ref, що дозволяє зручно здійснювати операції на основі взаємозв’язків між сутностями.
+Використання MongoDB для зберігання даних
+Система RoadSense використовує MongoDB як базу даних для зберігання даних про транспортні засоби, користувачів, маршрути, сенсори та інші елементи. MongoDB є документоорієнтованою базою даних, що дозволяє гнучко зберігати та обробляти структуровані та неструктуровані дані. Взаємодія з MongoDB через Mongoose дозволяє ефективно управляти зв’язками між даними та забезпечувати масштабованість системи в майбутньому.
+Таке проектування бази даних забезпечує ефективне зберігання, обробку та масштабування даних, необхідних для роботи програмної системи RoadSense.
+
+3.2	Розробка діаграми структури бази даних
+
+Після створення бази даних, була розроблена діаграма структури бази даних (див. рис. 3.1).
+
+ 
+Рис. 3.1 – діаграма структури бази даних
+
+4	Розробка серверної частини
+
+4.2	Розробка АРІ для взаємодії серверної частини з клієнтами
+Для реалізації серверної частини програми було розроблено наступні маршрути та контролери, що забезпечують функціонал реєстрації, авторизації, активації акаунтів, а також управління сесіями користувачів.
+4.2.1 Розробка АРІ для взаємодії серверної частини з клієнтами
+Для реалізації серверної частини програми управління автопарками було розроблено наступні маршрути та контролери, які забезпечують основні функції для роботи з транспортними засобами, користувачами та маршрутами, включаючи можливість реєстрації користувачів, управління транспортними засобами та моніторинг активностей.
+4.2.2 Маршрути: 
+• POST /users – маршрут для реєстрації нового користувача в системі.
+• GET /users – маршрут для отримання списку всіх користувачів (доступний лише авторизованим користувачам).
+• POST /vehicles – маршрут для додавання нового транспортного засобу в систему.
+• GET /vehicles – маршрут для отримання списку всіх транспортних засобів.
+• POST /routes – маршрут для додавання нового маршруту для транспортних засобів.
+• GET /routes – маршрут для отримання списку всіх маршрутів.
+• POST /sensors – маршрут для додавання нових сенсорів для моніторингу технічного стану транспортних засобів.
+• GET /sensors – маршрут для отримання даних усіх сенсорів.
+• POST /uservehicles – маршрут для призначення транспортного засобу користувачу.
+4.2.3 Контролери:
+UserController:
+ • createUser: Реалізує реєстрацію нового користувача, перевіряючи коректність введених даних. При успішній реєстрації створюється новий користувач у базі даних.
+• getUsers: Дозволяє адміністратору отримати список усіх користувачів, які зареєстровані в системі.
+VehicleController: 
+• createVehicle: Додає новий транспортний засіб до системи, включаючи модель, номерний знак, рік випуску та статус.
+• getVehicles: Повертає список усіх транспортних засобів у базі даних.
+RouteController:
+ • createRoute: Додає новий маршрут, включаючи початкову та кінцеву точку, відстань та транспортний засіб, який буде виконувати цей маршрут.
+• getRoutes: Повертає всі маршрути транспортних засобів.
+SensorController:
+ • createSensor: Додає новий сенсор, що моніторить технічний стан транспортного засобу (наприклад, температура, тиск у шинах).
+• getSensors: Повертає всі сенсори для моніторингу даних про транспортні засоби.
+UserVehicleController:
+ • assignVehicleToUser: Призначає транспортний засіб конкретному користувачу, зберігаючи час призначення та іншу відповідну інформацію.
+
+4.2.4	Код реалізації:
+Наведено у додатку Б
+Цей набір маршрутів і контролерів забезпечує базову функціональність
+для реєстрації та авторизації користувачів, а також їх активацію і управління сесією.
+Тепер використовуючи створене АРІ було розроблено програмну реалізацію через Swagger (див. рис. 4.1).
+
+  
+Рис. 4.1 – програмна реалізація для АРІ
+
+5	Висновок
+
+В ході виконання роботи було розроблено UML діаграму прецедентів та ER діаграму для системи управління автопарками. На їх основі створено базу даних та побудовано її структуру з визначенням зв'язків між сутностями. Було розроблено функції для взаємодії з базою даних і створено API для взаємодії серверної частини з клієнтськими додатками. Завершальним етапом стало створення програмної реалізації API.
+
+Додаток А
+
+1  const express = require('express');
+2  const mongoose = require('mongoose');
+3  const bodyParser = require('body-parser');
+4  
+5  // Підключення до MongoDB
+6  mongoose.connect('mongodb://localhost:27017/roadsense', {
+7    useNewUrlParser: true,
+8    useUnifiedTopology: true,
+9  });
+10 
+11 // Створення схем та моделей
+12 
+13 // Схема користувача
+14 const userSchema = new mongoose.Schema({
+15   username: { type: String, required: true, unique: true },
+16   password: { type: String, required: true },
+17   role: { type: String, enum: ['User', 'Admin'], required: true },
+18   created_at: { type: Date, default: Date.now },
+19   updated_at: { type: Date, default: Date.now },
+20 });
+21 
+22 const User = mongoose.model('User', userSchema);
+23 
+24 // Схема транспортного засобу
+25 const vehicleSchema = new mongoose.Schema({
+26   model: { type: String, required: true },
+27   license_plate: { type: String, required: true, unique: true },
+28   year: { type: Number, required: true },
+29   status: { type: String, enum: ['Active', 'Inactive'], required: true },
+30   created_at: { type: Date, default: Date.now },
+31   updated_at: { type: Date, default: Date.now },
+32 });
+33 
+34 const Vehicle = mongoose.model('Vehicle', vehicleSchema);
+35 
+36 // Схема маршруту
+37 const routeSchema = new mongoose.Schema({
+38   start_point: { type: String, required: true },
+39   end_point: { type: String, required: true },
+40   distance: { type: Number, required: true },
+41   vehicle_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true },
+42   created_at: { type: Date, default: Date.now },
+43   updated_at: { type: Date, default: Date.now },
+44 });
+45 
+46 const Route = mongoose.model('Route', routeSchema);
+47 
+48 // Схема сенсора
+49 const sensorSchema = new mongoose.Schema({
+50   type: { type: String, required: true },
+51   value: { type: Number, required: true },
+52   vehicle_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true },
+53   created_at: { type: Date, default: Date.now },
+54   updated_at: { type: Date, default: Date.now },
+55 });
+56 
+57 const Sensor = mongoose.model('Sensor', sensorSchema);
+58 
+59 // Схема призначення транспортного засобу користувачеві
+60 const userVehicleSchema = new mongoose.Schema({
+61   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+62   vehicle_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle', required: true },
+63   assigned_at: { type: Date, default: Date.now },
+64 });
+65 
+66 const UserVehicle = mongoose.model('UserVehicle', userVehicleSchema);
+67 
+68 // Ініціалізація Express
+69 const app = express();
+70 app.use(bodyParser.json());
+71 
+72 // Маршрут для створення користувача
+73 app.post('/users', async (req, res) => {
+74   try {
+75     const user = new User(req.body);
+76     await user.save();
+77     res.status(201).json(user);
+78   } catch (error) {
+79     res.status(400).json({ message: error.message });
+80   }
+81 });
+82 
+83 // Маршрут для отримання всіх користувачів
+84 app.get('/users', async (req, res) => {
+85   try {
+86     const users = await User.find();
+87     res.status(200).json(users);
+88   } catch (error) {
+89     res.status(400).json({ message: error.message });
+90   }
+91 });
+92 
+93 // Маршрут для створення транспортного засобу
+94 app.post('/vehicles', async (req, res) => {
+95   try {
+96     const vehicle = new Vehicle(req.body);
+97     await vehicle.save();
+98     res.status(201).json(vehicle);
+99   } catch (error) {
+100     res.status(400).json({ message: error.message });
+101   }
+102 });
+103 
+104 // Маршрут для отримання всіх транспортних засобів
+105 app.get('/vehicles', async (req, res) => {
+106   try {
+107     const vehicles = await Vehicle.find();
+108     res.status(200).json(vehicles);
+109   } catch (error) {
+110     res.status(400).json({ message: error.message });
+111   }
+112 });
+113 
+114 // Маршрут для створення маршруту
+115 app.post('/routes', async (req, res) => {
+116   try {
+117     const route = new Route(req.body);
+118     await route.save();
+119     res.status(201).json(route);
+120   } catch (error) {
+121     res.status(400).json({ message: error.message });
+122   }
+123 });
+124 
+125 // Маршрут для отримання всіх маршрутів
+126 app.get('/routes', async (req, res) => {
+127   try {
+128     const routes = await Route.find().populate('vehicle_id', 'model license_plate');
+129     res.status(200).json(routes);
+130   } catch (error) {
+131     res.status(400).json({ message: error.message });
+132   }
+133 });
+134 
+135 // Маршрут для створення сенсора
+136 app.post('/sensors', async (req, res) => {
+137   try {
+138     const sensor = new Sensor(req.body);
+139     await sensor.save();
+140     res.status(201).json(sensor);
+141   } catch (error) {
+142     res.status(400).json({ message: error.message });
+143   }
+144 });
+145 
+146 // Маршрут для отримання всіх сенсорів
+147 app.get('/sensors', async (req, res) => {
+148   try {
+149     const sensors = await Sensor.find().populate('vehicle_id', 'model license_plate');
+150     res.status(200).json(sensors);
+151   } catch (error) {
+152     res.status(400).json({ message: error.message });
+153   }
+154 });
+155 
+156 // Маршрут для призначення транспортного засобу користувачеві
+157 app.post('/uservehicles', async (req, res) => {
+158   try {
+159     const userVehicle = new UserVehicle(req.body);
+160     await userVehicle.save();
+161     res.status(201).json(userVehicle);
+162   } catch (error) {
+163     res.status(400).json({ message: error.message });
+164   }
+165 });
+166 
+167 // Запуск сервера
+168 const PORT = 3000;
+169 app.listen(PORT, () => {
+170   console.log(`Server is running on port ${PORT}`);
+171 }); 
+Додаток Б
+
+
+1  const UserModel = require("../models/user-model");
+2  const bcrypt = require("bcrypt");
+3  const uuid = require("uuid");
+4  
+5  const tokenService = require("./token-service");
+6  const UserDto = require("../dtos/user-dto");
+7  const ApiError = require("../exceptions/api-error");
+8  
+9  class UserService {
+10   async registration(email, password) {
+11     const candidate = await UserModel.findOne({ email });
+12     if (candidate) {
+13       throw ApiError.BadRequest(
+14         `User with email address ${email} already exists`
+15       );
+16     }
+17     const hashPassword = await bcrypt.hash(password, 3);
+18     const activationLink = uuid.v4(); // v34fa-asfasf-142saf-sa-asf
+19  
+20     const user = await UserModel.create({
+21       email,
+22       password: hashPassword,
+23       activationLink,
+24     });
+25  
+26     const userDto = new UserDto(user); // id, email, isActivated
+27     const tokens = tokenService.generateTokens({ ...userDto });
+28     await tokenService.saveToken(userDto.id, tokens.refreshToken);
+29  
+30     return { ...tokens, user: userDto };
+31   }
+32  
+33   async activate(activationLink) {
+34     const user = await UserModel.findOne({ activationLink });
+35     if (!user) {
+36       throw ApiError.BadRequest("Incorrect activation link");
+37     }
+38     user.isActivated = true;
+39     await user.save();
+40   }
+41  
+42   async login(email, password) {
+43     const user = await UserModel.findOne({ email });
+44     if (!user) {
+45       throw ApiError.BadRequest("User with this email was not found");
+46     }
+47     const isPassEquals = await bcrypt.compare(password, user.password);
+48     if (!isPassEquals) {
+49       throw ApiError.BadRequest("Invalid password");
+50     }
+51     const userDto = new UserDto(user);
+52     const tokens = tokenService.generateTokens({ ...userDto });
+53  
+54     await tokenService.saveToken(userDto.id, tokens.refreshToken);
+55     return { ...tokens, user: userDto };
+56   }
+57  
+58   async logout(refreshToken) {
+59     const token = await tokenService.removeToken(refreshToken);
+60     return token;
+61   }
+62  
+63   async refresh(refreshToken) {
+64     if (!refreshToken) {
+65       throw ApiError.UnauthorizedError();
+66     }
+67     const userData = tokenService.validateRefreshToken(refreshToken);
+68     const tokenFromDb = await tokenService.findToken(refreshToken);
+69     if (!userData || !tokenFromDb) {
+70       throw ApiError.UnauthorizedError();
+71     }
+72     const user = await UserModel.findById(userData.id);
+73     const userDto = new UserDto(user);
+74     const tokens = tokenService.generateTokens({ ...userDto });
+75  
+76     await tokenService.saveToken(userDto.id, tokens.refreshToken);
+77     return { ...tokens, user: userDto };
+78   }
+79  
+80   async getAllUsers() {
+81     const users = await UserModel.find();
+82     return users;
+83   }
+84 }
+85  
+86 module.exports = new UserService();
