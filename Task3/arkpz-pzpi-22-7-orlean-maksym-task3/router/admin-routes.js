@@ -1,0 +1,20 @@
+const Router = require("express").Router;
+const userController = require("../controllers/user-controller");
+const transportController = require("../controllers/transport-controller");
+const routeController = require("../controllers/route-controller");
+const trafficDataController = require("../controllers/trafficData-controller");
+const adminMiddleware = require("../middlewares/admin-middleware");
+
+const router = new Router();
+router.get("/users", adminMiddleware, userController.getUsers);
+router.post("/transports", adminMiddleware, transportController.createTransport);
+router.get("/transports", adminMiddleware, transportController.getAllTransports);
+router.put("/transports/:id", adminMiddleware, transportController.updateTransport);
+router.delete("/transports/:id", adminMiddleware, transportController.deleteTransport);
+router.post("/routes", adminMiddleware, routeController.createRoute);
+router.get("/routes", adminMiddleware, routeController.getAllRoutes);
+router.put("/routes/:id", adminMiddleware, routeController.updateRoute);
+router.delete("/routes/:id", adminMiddleware, routeController.deleteRoute);
+router.post("/traffic-data", adminMiddleware, trafficDataController.createTrafficData);
+router.get("/traffic-data", adminMiddleware, trafficDataController.getAllTrafficData);
+module.exports = router;
