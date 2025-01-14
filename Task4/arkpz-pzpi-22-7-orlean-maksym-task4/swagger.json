@@ -1,0 +1,552 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "RoadSense",
+    "version": "1.0.0",
+    "description": "API для управління транспортними засобами"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/api/transports": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Додати новий транспортний засіб",
+        "description": "Адміністратор додає новий транспортний засіб до системи.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Транспортний засіб успішно додано"
+          },
+          "400": {
+            "description": "Некоректні дані"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримати всі транспортні засоби",
+        "description": "Отримує список всіх транспортних засобів у системі.",
+        "responses": {
+          "200": {
+            "description": "Список транспортних засобів",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transport"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка запиту"
+          }
+        }
+      }
+    },
+    "/api/transports/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Оновити транспортний засіб",
+        "description": "Оновлює інформацію про транспортний засіб за унікальним ідентифікатором.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "123456"
+            },
+            "description": "Унікальний ідентифікатор транспортного засобу"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transport"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Інформацію про транспортний засіб успішно оновлено"
+          },
+          "404": {
+            "description": "Транспортний засіб не знайдено"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Видалити транспортний засіб",
+        "description": "Видаляє транспортний засіб із системи за унікальним ідентифікатором.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "123456"
+            },
+            "description": "Унікальний ідентифікатор транспортного засобу"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Транспортний засіб успішно видалено"
+          },
+          "404": {
+            "description": "Транспортний засіб не знайдено"
+          }
+        }
+      }
+    },
+
+    "/api/traffic-data": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Додати нові дані про трафік",
+        "description": "Адміністратор додає нові дані про трафік в систему.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrafficData"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Дані про трафік успішно додано"
+          },
+          "400": {
+            "description": "Некоректні дані"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримати всі дані про трафік",
+        "description": "Отримує список усіх даних про трафік у системі.",
+        "responses": {
+          "200": {
+            "description": "Список даних про трафік",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrafficData"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка запиту"
+          }
+        }
+      }
+    },
+
+    "/api/routes": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Додати новий маршрут",
+        "description": "Адміністратор додає новий маршрут у систему.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Route"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Маршрут успішно додано"
+          },
+          "400": {
+            "description": "Некоректні дані"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Отримати всі маршрути",
+        "description": "Отримує список усіх маршрутів у системі.",
+        "responses": {
+          "200": {
+            "description": "Список маршрутів",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Route"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка запиту"
+          }
+        }
+      }
+    },
+    "/api/routes/{id}": {
+      "put": {
+        "tags": ["Admin"],
+        "summary": "Оновити маршрут",
+        "description": "Оновлює інформацію про маршрут за унікальним ідентифікатором.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "123456"
+            },
+            "description": "Унікальний ідентифікатор маршруту"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Route"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Інформацію про маршрут успішно оновлено"
+          },
+          "404": {
+            "description": "Маршрут не знайдено"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin"],
+        "summary": "Видалити маршрут",
+        "description": "Видаляє маршрут із системи за унікальним ідентифікатором.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "123456"
+            },
+            "description": "Унікальний ідентифікатор маршруту"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Маршрут успішно видалено"
+          },
+          "404": {
+            "description": "Маршрут не знайдено"
+          }
+        }
+      }
+    },
+
+    "/api/registration": {
+      "post": {
+        "summary": "User registration",
+        "description": "Registration of a new user in the system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 32,
+                    "example": "securepassword"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "tokens": {
+                      "$ref": "#/components/schemas/Tokens"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "User login",
+        "description": "Login a user with email and password.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "user@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "securepassword"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "tokens": {
+                      "$ref": "#/components/schemas/Tokens"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Get all users",
+        "description": "Retrieve a list of all users in the system.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "summary": "Logout from system",
+        "description": "Logout from system",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully logout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "60f7c1b1b3d72c001c8e4c37"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "securepassword"
+          },
+          "role": {
+            "type": "string",
+            "example": "user"
+          }
+        }
+      },
+      "Tokens": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MGY3Y2YxYmNkZjFjOGU4NzY1YzNkMGZkYyIsImlhdCI6MTYwNTM5NzM2Mn0.Mu_8GnHl1j-JuGJlz5qhtFZcmrwPwn2Zy5tE9Ta3gUQ"
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "d0ebedda4f5377623dcdfe3f1bb617fe9c4014d7c63df08a49312fc2f505a49cda31393e416b235e68eb56ee2a0a64b073dfe2e0357c01a3e50a91f2a26da2d6"
+          }
+        }
+      },
+      "Transport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123456"
+          },
+          "type": {
+            "type": "string",
+            "example": "Car"
+          },
+          "model": {
+            "type": "string",
+            "example": "Toyota Corolla"
+          },
+          "status": {
+            "type": "string",
+            "example": "Available"
+          }
+        }
+      },
+      "Route": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "78910"
+          },
+          "startPoint": {
+            "type": "string",
+            "example": "Point A"
+          },
+          "endPoint": {
+            "type": "string",
+            "example": "Point B"
+          },
+          "distance": {
+            "type": "number",
+            "example": 15.5
+          }
+        }
+      },
+      "TrafficData": {
+        "type": "object",
+        "properties": {
+          "sensorId": {
+            "type": "string",
+            "example": "sensor123"
+          },
+          "trafficVolume": {
+            "type": "number",
+            "example": 200
+          },
+          "speed": {
+            "type": "number",
+            "example": 50
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-12-01T15:30:00Z"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
