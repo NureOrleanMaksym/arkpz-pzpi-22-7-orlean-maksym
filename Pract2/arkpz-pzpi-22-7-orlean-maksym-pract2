@@ -1,0 +1,41 @@
+До рефакторингу
+class Order:
+      def calculate_total(self, items):
+      total = 0
+      for item in items:
+         total += item.price * item.quantity
+      if total > 100:
+         total *= 0.9 # знижка 10%
+      return total
+
+Після рефакторингу:
+class Order:    
+def calculate_total(self, items):        
+    total = self._calculate_subtotal(items)      
+    return self._apply_discount(total)    
+def _calculate_subtotal(self, items):              
+    return sum(item.price * item.quantity for item in items)    
+def _apply_discount(self, total):        
+    if total > 100:            
+       return total * 0.9        
+    return total
+
+До рефакторингу
+class Rectangle:
+      def a(self):
+            return self.width * self.height
+
+Після рефакторингу
+class Rectangle:
+     def calculate_area(self):
+         return self.width * self.height
+
+До рефакторингу:
+if user.is_admin and user.is_active and not user.is_suspended:
+      grant_access()
+
+Після рефакторингу
+def has_access(user):
+    return user.is_admin and user.is_active and not user.is_suspended
+if has_access(user):
+    grant_access()
